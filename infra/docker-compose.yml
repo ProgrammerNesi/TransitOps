@@ -1,0 +1,45 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: transitops-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-transitops}
+      MYSQL_USER: ${MYSQL_USER:-transitops}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-transitops}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-transitops_root}
+    ports:
+      - "3307:3306"
+    volumes:
+      - transitops_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ../backend
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    ports:
+      - "4000:4000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ../frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://localhost:4000/api
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  transitops_mysql_data:
