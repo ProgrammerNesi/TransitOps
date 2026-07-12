@@ -6,6 +6,12 @@ build/
 !.env.example
 coverage/
 .DS_Store
+Thumbs.db
 *.log
-backend/prisma/migrations/
+npm-debug.log*
+*.tsbuildinfo
+.eslintcache
+.vscode/
+.idea/
 frontend/.vite/
+backend/prisma/migrations/
